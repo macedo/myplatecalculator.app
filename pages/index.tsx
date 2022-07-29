@@ -1,42 +1,28 @@
-import type { NextPage } from 'next'
-import { useMemo } from 'react'
-import Head from 'next/head'
+import type { NextPage } from 'next';
+import React, { useEffect, useMemo, useState } from 'react';
+import Head from 'next/head';
 
-import Table from '../components/Table'
+import Table from '../components/Table';
 
 const Home: NextPage = () => {
 
-  const data = useMemo(
-    () => [
-      {
-        col1: 'Hello',
-        col2: 'World',
-      },
-      {
-        col1: 'react-table',
-        col2: 'rocks',
-      },
-      {
-        col1: 'whatever',
-        col2: 'you want',
-      },
-    ],
-    []
-  )
+  const [weight, setWeight] = useState<number>();
+
+  const [data, setData] = useState([]);
   
   const columns = useMemo(
     () => [
       {
-        Header: 'Column 1',
-        accessor: 'col1', // accessor is the "key" in the data
+        Header: 'Percentage',
+        accessor: 'percentage', // accessor is the "key" in the data
       },
       {
-        Header: 'Column 2',
-        accessor: 'col2',
+        Header: 'Weight',
+        accessor: 'weight',
       },
     ],
     []
-  )
+  );
 
   return (
     <div>
@@ -48,16 +34,16 @@ const Home: NextPage = () => {
 
       <main>
         <h1 className="text-3xl font-bold underline text-gray-400">
-          Hello world!
+          Hello world! Weight is {weight}
         </h1>
 
+        <input type="number" value={weight} onChange={(evt) => setWeight(Number(evt.target.value))}/>
         <Table columns={columns} data={data} />
-
       </main>
       <footer>
       </footer>
     </div>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;
