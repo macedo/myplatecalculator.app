@@ -4,6 +4,19 @@ import Head from 'next/head';
 
 import Table from '../components/Table';
 
+const percentage : Function = (a: number, b: number[]) => {
+  let result: { percentage: number; weight: number; }[] = [];
+
+  b.forEach((value, i) => {
+    result.push({
+      'percentage': value,
+      'weight': a * (b[i] / 100)
+    });
+  });
+
+  return result;
+};
+
 const Home: NextPage = () => {
 
   const [weight, setWeight] = useState<number>();
@@ -24,6 +37,15 @@ const Home: NextPage = () => {
     []
   );
 
+  const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = Number(event.target.value);
+
+    setWeight(value);
+
+    const result = percentage(value, [100, 90, 80, 70]);
+    setData(result);
+  };
+
   return (
     <div>
       <Head>
@@ -37,7 +59,7 @@ const Home: NextPage = () => {
           Hello world! Weight is {weight}
         </h1>
 
-        <input type="number" value={weight} onChange={(evt) => setWeight(Number(evt.target.value))}/>
+        <input type="number" value={weight} onChange={onChange}/>
         <Table columns={columns} data={data} />
       </main>
       <footer>
