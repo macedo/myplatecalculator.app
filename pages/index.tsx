@@ -3,9 +3,16 @@ import React, { useEffect, useState } from 'react';
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import Head from 'next/head';
 
+import calculatePlates from '../src/calculatePlates';
+
+interface PlatesConfig {
+  [key: number]: number
+}
+
 type RowData= {
    percentage: number,
-   weight: number
+   weight: number,
+   platesConfig: PlatesConfig
 };
 
 type TableProps<TData> = {
@@ -18,7 +25,7 @@ const columns: ColumnDef<RowData>[] = [
     accessorKey: 'percentage',
     header: '%',
     cell: (props) => {
-        return `${props.getValue()} %`;
+        return `${props.getValue()}%`;
     }
   },
   {
@@ -28,6 +35,25 @@ const columns: ColumnDef<RowData>[] = [
        return `${props.getValue()} LB`;
     }
   },
+  {
+    accessorKey: 'platesConfig',
+    header: 'Plages config',
+    cell: (props) => {
+      const platesConfig: PlatesConfig = props.getValue() as PlatesConfig;
+
+      const items = [];
+
+      for (let plate in platesConfig) {
+        items.push(<li key={`plate-${plate}`}>{`${platesConfig[plate]} x ${plate} LB`}</li>);
+      }
+
+      return (
+        <ul>
+          {items}
+        </ul>
+      );
+    }
+  }
 ];
 
 const Table: Function = ({data, columns}: TableProps<any>): JSX.Element=> {
@@ -77,6 +103,7 @@ const Table: Function = ({data, columns}: TableProps<any>): JSX.Element=> {
   );
 };
 
+const barbellWeight: number = 45;
 const percentages: number[] = [105, 100, 90 , 80, 70, 60, 50];
 
 const Home: NextPage = () => {
@@ -90,9 +117,11 @@ const Home: NextPage = () => {
 
       setData(
         percentages.map((value) => {
+          const pWeight = value * Number(weight) / 100;
           return {
             percentage: value,
-            weight: value * Number(weight) / 100
+            weight: pWeight,
+            platesConfig: calculatePlates(pWeight - barbellWeight, [[45, 10], [35, 10], [25,10]])
           };
         })
       );
