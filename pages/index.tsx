@@ -1,49 +1,107 @@
 import type { NextPage } from 'next';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import Head from 'next/head';
 
-import Table from '../components/Table';
+type RowData= {
+   percentage: number,
+   weight: number
+};
 
-const percentage : Function = (a: number, b: number[]) => {
-  let result: { percentage: number; weight: number; }[] = [];
+type TableProps<TData> = {
+  data: TData[],
+  columns: ColumnDef<TData>[]
+};
 
-  b.forEach((value, i) => {
-    result.push({
-      'percentage': value,
-      'weight': a * (b[i] / 100)
-    });
+const columns: ColumnDef<RowData>[] = [
+  {
+    accessorKey: 'percentage',
+    header: '%',
+    cell: (props) => {
+        return `${props.getValue()} %`;
+    }
+  },
+  {
+    accessorKey: 'weight',
+    header: 'Weight',
+    cell: (props) => {
+       return `${props.getValue()} LB`;
+    }
+  },
+];
+
+const Table: Function = ({data, columns}: TableProps<any>): JSX.Element=> {
+  const table = useReactTable<any>({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
   });
 
-  return result;
+  return (
+    <table>
+      <thead>
+        {table.getHeaderGroups().map(headerGroup => (
+          <tr key={headerGroup.id}>
+            {headerGroup.headers.map(header => {
+              return (
+                <td key={header.id}>
+                  {flexRender(
+                    header.column.columnDef.header,
+                    header.getContext()
+                  )}
+                </td>
+              );
+            })}
+          </tr>
+        ))}
+      </thead>
+      <tbody>
+        {table.getRowModel().rows.map(row => {
+          return (
+            <tr key={row.id}>
+              {row.getVisibleCells().map(cell => {
+                return (
+                  <td key={cell.id}>
+                    {flexRender(
+                      cell.column.columnDef.cell,
+                      cell.getContext()
+                    )}
+                  </td>
+                );
+              })}
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  );
 };
+
+const percentages: number[] = [105, 100, 90 , 80, 70, 60, 50];
 
 const Home: NextPage = () => {
 
-  const [weight, setWeight] = useState<number>();
+  const [weight, setWeight] = useState<string>();
 
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<RowData[]>([]);
+
+  useEffect(() => {
+    if (weight) {
+
+      setData(
+        percentages.map((value) => {
+          return {
+            percentage: value,
+            weight: value * Number(weight) / 100
+          };
+        })
+      );
+    }
+  }, [weight]);
   
-  const columns = useMemo(
-    () => [
-      {
-        Header: 'Percentage',
-        accessor: 'percentage', // accessor is the "key" in the data
-      },
-      {
-        Header: 'Weight',
-        accessor: 'weight',
-      },
-    ],
-    []
-  );
-
+  
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = Number(event.target.value);
-
-    setWeight(value);
-
-    const result = percentage(value, [100, 90, 80, 70]);
-    setData(result);
+    setWeight(event.target.value);
   };
 
   return (
@@ -56,14 +114,13 @@ const Home: NextPage = () => {
 
       <main>
         <h1 className="text-3xl font-bold underline text-gray-400">
-          Hello world! Weight is {weight}
+        
+        Hello world! Weight is {weight}
         </h1>
 
-        <input type="number" value={weight} onChange={onChange}/>
+        <input type="number" onChange={onChange}/>
         <Table columns={columns} data={data} />
       </main>
-      <footer>
-      </footer>
     </div>
   );
 };
