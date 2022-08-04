@@ -11,7 +11,7 @@ const calculatePlates: Function = (weight: number, availablePlates: number[][]) 
     }
 
     const count = Math.min(number, n);
-    for (let i = count; i >= 0; i--) {
+    for (let i = count; i >= 0; i-=2) {
         let result = calculatePlates(weight - i * plate, rest);
         if (result) return { [plate]: i, ...result };
     }
