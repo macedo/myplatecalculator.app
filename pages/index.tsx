@@ -7,9 +7,29 @@ import {
 } from '../src/calculatePlates';
 
 const availablePlates: number[][] =  [[45, 10], [35, 10], [25,10], [15, 10], [10, 10], [5, 10]];
-const barbellWeight: number = 45;
 
-const Home: NextPage = () => {
+const Barbell45: number = 45;
+const Barbell35: number = 35;
+
+type RadioInputProps = {
+  checked: boolean
+  label: string
+  value: string | number
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
+};
+
+const RadioInput = (props: RadioInputProps): JSX.Element => {
+  return (
+    <div>
+      <input type="radio" value={props.value} checked={props.checked} onChange={props.onChange}/>
+      <label>{props.label}</label>
+    </div>
+  );
+};
+
+const Home: NextPage = (): JSX.Element => {
+
+  const [barbellWeight, setBarbellWeight] = useState<number>(Barbell45);
 
   const [platesConfig, setPlatesConfig] = useState<number[][]>([]);
 
@@ -22,11 +42,16 @@ const Home: NextPage = () => {
 
       setPlatesConfig(pConfig);
     }
-  }, [weight]);
+  }, [barbellWeight, weight]);
   
   const weightInputHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const enteredWeight = Number(event.target.value);
+    const enteredWeight: number = Number(event.target.value);
     setWeight(enteredWeight);
+  };
+
+  const barbellWeightInputHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const checkedBarbelWeight = Number(event.target.value);
+    setBarbellWeight(checkedBarbelWeight);
   };
 
   return (
@@ -41,6 +66,9 @@ const Home: NextPage = () => {
         <h1 className="text-3xl font-bold underline text-gray-400">
           Hello world! Weight is {weight}
         </h1>
+
+        <RadioInput label="35LB" value={Barbell35} checked={barbellWeight == Barbell35} onChange={barbellWeightInputHandler} />
+        <RadioInput label="45LB" value={Barbell45} checked={barbellWeight == Barbell45} onChange={barbellWeightInputHandler} />
 
         <input type="number" min={barbellWeight} step={10} onChange={weightInputHandler} />
 
