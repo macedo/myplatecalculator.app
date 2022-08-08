@@ -18,7 +18,9 @@ const Home: NextPage = () => {
   useEffect(() => {
     if (weight) {
       let pConfig = calculatePlates(weight - barbellWeight, availablePlates);
-      if (pConfig) { setPlatesConfig(pConfig); }
+      if (!pConfig) pConfig = [];
+
+      setPlatesConfig(pConfig);
     }
   }, [weight]);
   
