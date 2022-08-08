@@ -1,136 +1,30 @@
 import type { NextPage } from 'next';
 import React, { useEffect, useState } from 'react';
-import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import Head from 'next/head';
 
-import calculatePlates from '../src/calculatePlates';
+import {
+  calculatePlates
+} from '../src/calculatePlates';
 
-interface PlatesConfig {
-  [key: number]: number
-}
-
-type RowData= {
-   percentage: number,
-   weight: number,
-   platesConfig: PlatesConfig
-};
-
-type TableProps<TData> = {
-  data: TData[],
-  columns: ColumnDef<TData>[]
-};
-
-const columns: ColumnDef<RowData>[] = [
-  {
-    accessorKey: 'percentage',
-    header: '%',
-    cell: (props) => {
-        return `${props.getValue()}%`;
-    }
-  },
-  {
-    accessorKey: 'weight',
-    header: 'Weight',
-    cell: (props) => {
-       return `${props.getValue()} LB`;
-    }
-  },
-  {
-    accessorKey: 'platesConfig',
-    header: 'Plages config',
-    cell: (props) => {
-      const platesConfig: PlatesConfig = props.getValue() as PlatesConfig;
-
-      const items = [];
-
-      for (let plate in platesConfig) {
-        items.push(<li key={`plate-${plate}`}>{`${platesConfig[plate]} x ${plate} LB`}</li>);
-      }
-
-      return (
-        <ul>
-          {items}
-        </ul>
-      );
-    }
-  }
-];
-
-const Table: Function = ({data, columns}: TableProps<any>): JSX.Element=> {
-  const table = useReactTable<any>({
-    data,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-  });
-
-  return (
-    <table>
-      <thead>
-        {table.getHeaderGroups().map(headerGroup => (
-          <tr key={headerGroup.id}>
-            {headerGroup.headers.map(header => {
-              return (
-                <td key={header.id}>
-                  {flexRender(
-                    header.column.columnDef.header,
-                    header.getContext()
-                  )}
-                </td>
-              );
-            })}
-          </tr>
-        ))}
-      </thead>
-      <tbody>
-        {table.getRowModel().rows.map(row => {
-          return (
-            <tr key={row.id}>
-              {row.getVisibleCells().map(cell => {
-                return (
-                  <td key={cell.id}>
-                    {flexRender(
-                      cell.column.columnDef.cell,
-                      cell.getContext()
-                    )}
-                  </td>
-                );
-              })}
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
-  );
-};
-
+const availablePlates: number[][] =  [[45, 10], [35, 10], [25,10], [15, 10], [10, 10], [5, 10]];
 const barbellWeight: number = 45;
-const percentages: number[] = [105, 100, 90 , 80, 70, 60, 50];
 
 const Home: NextPage = () => {
 
-  const [weight, setWeight] = useState<string>();
+  const [platesConfig, setPlatesConfig] = useState<number[][]>([]);
 
-  const [data, setData] = useState<RowData[]>([]);
+  const [weight, setWeight] = useState<number>();
 
   useEffect(() => {
     if (weight) {
-
-      setData(
-        percentages.map((value) => {
-          const pWeight = value * Number(weight) / 100;
-          return {
-            percentage: value,
-            weight: pWeight,
-            platesConfig: calculatePlates(pWeight - barbellWeight, [[45, 10], [35, 10], [25,10]])
-          };
-        })
-      );
+      let pConfig = calculatePlates(weight - barbellWeight, availablePlates);
+      if (pConfig) { setPlatesConfig(pConfig); }
     }
   }, [weight]);
   
-  
-  const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setWeight(event.target.value);
+  const weightInputHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const enteredWeight = Number(event.target.value);
+    setWeight(enteredWeight);
   };
 
   return (
@@ -143,12 +37,18 @@ const Home: NextPage = () => {
 
       <main>
         <h1 className="text-3xl font-bold underline text-gray-400">
-        
-        Hello world! Weight is {weight}
+          Hello world! Weight is {weight}
         </h1>
 
-        <input type="number" onChange={onChange}/>
-        <Table columns={columns} data={data} />
+        <input type="number" min={barbellWeight} step={10} onChange={weightInputHandler} />
+
+        <ul>
+          {platesConfig.map((plates, i) => {
+            return(
+              <li key={i}>{`${plates[1]} x ${plates[0]} LB`}</li>
+            );
+          })}
+        </ul>
       </main>
     </div>
   );
