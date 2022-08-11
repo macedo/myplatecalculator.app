@@ -4,6 +4,7 @@ import Head from 'next/head';
 import Image from 'next/image'; 
 import Link from 'next/link';
 
+import useLocalStorage from '../src/useLocalStorage';
 import {
   calculatePlates
 } from '../src/calculatePlates';
@@ -15,7 +16,7 @@ const Barbell35: number = 35;
 
 const Home: NextPage = (): JSX.Element => {
 
-  const [barbellWeight, setBarbellWeight] = useState<number>(Barbell45);
+  const [barbellWeight, setBarbellWeight] = useLocalStorage('barbell_weight', Barbell45);
 
   const [platesConfig, setPlatesConfig] = useState<number[][]>([]);
 
@@ -167,7 +168,7 @@ const Home: NextPage = (): JSX.Element => {
                                 name="barbell-weight"
                                 type="radio"
                                 value={bWeight.value}
-                                defaultChecked={bWeight.value === Barbell45 }
+                                defaultChecked={bWeight.value == barbellWeight }
                                 onChange={barbellWeightInputHandler}
                                 className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
                               />
