@@ -89,6 +89,11 @@ const Home: NextPage = (): JSX.Element => {
                       placeholder="Weight"
                       name="weight"
                     />
+                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                      <span className="sm:text-sm" id="price-currency">
+                        LB
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
