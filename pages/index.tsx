@@ -14,9 +14,16 @@ const availablePlates: number[][] =  [[45, 10], [35, 10], [25,10], [15, 10], [10
 const Barbell45: number = 45;
 const Barbell35: number = 35;
 
+const barbellWeights = [
+  { id: 'barbell35', value: Barbell35, title: '35LB' },
+  { id: 'barbell45', value: Barbell45, title: '45LB' },
+];
+
 const Home: NextPage = (): JSX.Element => {
 
-  const [barbellWeight, setBarbellWeight] = useLocalStorage('barbell_weight', Barbell45);
+  const [barbellWeight, setBarbellWeight] = useLocalStorage<number>('barbell_weight', Barbell45);
+
+  const [roundedWeight, setRoundedWeight] = useState<number>();
 
   const [platesConfig, setPlatesConfig] = useState<number[][]>([]);
 
@@ -27,6 +34,10 @@ const Home: NextPage = (): JSX.Element => {
       let pConfig = calculatePlates(weight - barbellWeight, availablePlates);
       if (!pConfig) pConfig = [];
 
+      let initialValue = 0;
+      const rWeight = barbellWeight + pConfig.reduce((pValue: number, value: number[]) => pValue + value[0] * value[1], initialValue);
+
+      setRoundedWeight(rWeight);
       setPlatesConfig(pConfig);
     }
   }, [barbellWeight, weight]);
@@ -41,15 +52,9 @@ const Home: NextPage = (): JSX.Element => {
     setBarbellWeight(checkedBarbelWeight);
   };
 
-  const barbellWeights = [
-    { id: 'barbell35', value: Barbell35, title: '35LB' },
-    { id: 'barbell45', value: Barbell45, title: '45LB' },
-  ];
-
   const hasPlateConfig = (): boolean => {
     return platesConfig.length > 0;
   };
-
   
   const classNames = (...classes: string[]): string => {
     return classes.filter(Boolean).join(' ');
@@ -124,25 +129,28 @@ const Home: NextPage = (): JSX.Element => {
                     <div className="p-6">
                       { hasPlateConfig()
                         ?
-                          <ul role="list" className="mt-3 grid grid-cols-1 gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-6">
-                            {platesConfig.map((plates, i) => (
-                              <li key={plates[0]} className="col-span-1 flex shadow-sm rounded-md">
-                                <div
-                                  className={classNames(
-                                    `barbell-${plates[0]}`,
-                                    'flex-shrink-0 flex items-center justify-center w-12 text-white text-sm rounded-l-md font-bold'
-                                  )}
-                                >
-                                  {`${plates[0]} LB`}
-                                </div>
-                                <div className="flex-1 flex items-center justify-between border-t border-r border-b border-gray-200 bg-white rounded-r-md truncate">
-                                  <div className="flex-1 px-4 py-2 text-sm truncate">
-                                    <p className="text-gray-500 font-bold">{`${plates[1]}x`}</p>
+                          <>
+                            <h3 className="text-lg leading-6 font-medium text-gray-500">~{roundedWeight} LB</h3>
+                            <ul role="list" className="mt-3 grid grid-cols-1 gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-6">
+                              {platesConfig.map((plates, i) => (
+                                <li key={plates[0]} className="col-span-1 flex shadow-sm rounded-md">
+                                  <div
+                                    className={classNames(
+                                      `barbell-${plates[0]}`,
+                                      'flex-shrink-0 flex items-center justify-center w-12 text-white text-sm rounded-l-md font-bold'
+                                    )}
+                                  >
+                                    {`${plates[0]} LB`}
                                   </div>
-                                </div>
-                              </li>
-                            ))}
-                        </ul>
+                                  <div className="flex-1 flex items-center justify-between border-t border-r border-b border-gray-200 bg-white rounded-r-md truncate">
+                                    <div className="flex-1 px-4 py-2 text-sm truncate">
+                                      <p className="text-gray-500 font-bold">{`${plates[1]}x`}</p>
+                                    </div>
+                                  </div>
+                                </li>
+                              ))}
+                            </ul>
+                          </>
                         :
                           <>
                             <h3 className="mt-2 text-sm font-medium text-gray-900">No weight</h3>
