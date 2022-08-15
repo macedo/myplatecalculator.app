@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import useLocalStorage from '../src/useLocalStorage';
-import { classNames } from '../src/utils';
+import { classNames, roundUp } from '../src/utils';
 import { calculatePlates } from '../src/calculatePlates';
 
 const KEY_AVAILABLE_PLATES = "available_plates";
@@ -21,12 +21,14 @@ const Plate25LB: number = 25;
 const Plate15LB: number = 15;
 const Plate10LB: number = 10;
 const Plate5LB: number = 5;
+const Plate2_5LB: number = 2.5;
 
 
 const barbellsList = [
   { name: '35 LB', value: Barbell35LB },
   { name: '45 LB', value: Barbell45LB }
 ];
+
 const platesList = [
   { name: '55 LB', value: Plate55LB },
   { name: '45 LB', value: Plate45LB },
@@ -35,13 +37,14 @@ const platesList = [
   { name: '15 LB', value: Plate15LB },
   { name: '10 LB', value: Plate10LB },
   { name: '5 LB', value: Plate5LB },
+  { name: '2.5 LB', value: Plate2_5LB }
 ];
 
 const Home: NextPage = (): JSX.Element => {
 
   const [availablePlates, setAvailablePlates] = useLocalStorage<number[]>(
     KEY_AVAILABLE_PLATES,
-    [Plate45LB, Plate35LB, Plate25LB, Plate15LB, Plate10LB, Plate5LB]
+    [Plate55LB, Plate45LB, Plate35LB, Plate25LB, Plate15LB, Plate10LB, Plate5LB, Plate2_5LB]
   );
 
   const [barbellWeight, setBarbellWeight] = useLocalStorage<number>(
@@ -49,28 +52,24 @@ const Home: NextPage = (): JSX.Element => {
     Barbell45LB
   );
 
-  const [roundedWeight, setRoundedWeight] = useState<number>();
-
   const [platesConfig, setPlatesConfig] = useState<number[][]>([]);
 
   const [weight, setWeight] = useState<number>();
 
   useEffect(() => {
     if (weight) {
+ 
       let pConfig = calculatePlates(weight - barbellWeight, availablePlates);
       if (!pConfig) pConfig = [];
 
-      let initialValue = 0;
-      const rWeight = barbellWeight + pConfig.reduce((pValue: number, value: number[]) => pValue + value[0] * value[1], initialValue);
-
-      setRoundedWeight(rWeight);
       setPlatesConfig(pConfig);
     }
   }, [barbellWeight, availablePlates, weight]);
 
   const weightInputHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const minorPlate: number = availablePlates[availablePlates.length - 1];
     const enteredWeight: number = Number(event.target.value);
-    setWeight(enteredWeight);
+    setWeight(roundUp(enteredWeight, minorPlate * 2));
   };
 
   const barbellWeightInputHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -166,7 +165,7 @@ const Home: NextPage = (): JSX.Element => {
                       {platesConfig.length > 0
                         ?
                         <>
-                          <h3 className="text-lg leading-6 font-medium text-gray-500">~{roundedWeight} LB</h3>
+                          <h3 className="text-lg leading-6 font-medium text-gray-500">~{weight} LB</h3>
                           <ul role="list" className="mt-3 grid grid-cols-1 gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-6">
                             {platesConfig.map((plates, index) => (
                               <li key={index} className="col-span-1 flex shadow-sm rounded-md">

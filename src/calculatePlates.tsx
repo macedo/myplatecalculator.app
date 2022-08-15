@@ -11,9 +11,6 @@ export const calculatePlates: Function = (
         if (weight === 0) return [[plate, 0]];
         if ((weight % plate) > 0 ) return;
 
-        n = Math.floor(weight / plate);
-        if (n % 2 !== 0) n += 1;
-
         return [[plate, n]];
     }
 
