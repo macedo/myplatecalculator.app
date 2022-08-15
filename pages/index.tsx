@@ -171,7 +171,7 @@ const Home: NextPage = (): JSX.Element => {
                               <li key={index} className="col-span-1 flex shadow-sm rounded-md">
                                 <div
                                   className={classNames(
-                                    `barbell-${plates[0]}`,
+                                    `barbell-${plates[0]}`.replace(".", "_"),
                                     'flex-shrink-0 flex items-center justify-center w-12 text-white text-sm rounded-l-md font-bold'
                                   )}
                                 >
