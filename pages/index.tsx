@@ -1,27 +1,53 @@
-import type {  NextPage } from 'next';
+import type { NextPage } from 'next';
 import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
-import Image from 'next/image'; 
+import Image from 'next/image';
 import Link from 'next/link';
 
 import useLocalStorage from '../src/useLocalStorage';
-import {
-  calculatePlates
-} from '../src/calculatePlates';
+import { classNames } from '../src/utils';
+import { calculatePlates } from '../src/calculatePlates';
 
-const availablePlates: number[][] =  [[45, 10], [35, 10], [25,10], [15, 10], [10, 10], [5, 10]];
+const KEY_AVAILABLE_PLATES = "available_plates";
+const KEY_BARBELL_WEIGHT = "barbell_weight";
 
-const Barbell45: number = 45;
-const Barbell35: number = 35;
+const Barbell35LB: number = 35;
+const Barbell45LB: number = 45;
 
-const barbellWeights = [
-  { id: 'barbell35', value: Barbell35, title: '35LB' },
-  { id: 'barbell45', value: Barbell45, title: '45LB' },
+const Plate55LB: number = 55;
+const Plate45LB: number = 45;
+const Plate35LB: number = 35;
+const Plate25LB: number = 25;
+const Plate15LB: number = 15;
+const Plate10LB: number = 10;
+const Plate5LB: number = 5;
+
+
+const barbellsList = [
+  { name: '35 LB', value: Barbell35LB },
+  { name: '45 LB', value: Barbell45LB }
+];
+const platesList = [
+  { name: '55 LB', value: Plate55LB },
+  { name: '45 LB', value: Plate45LB },
+  { name: '35 LB', value: Plate35LB },
+  { name: '25 LB', value: Plate25LB },
+  { name: '15 LB', value: Plate15LB },
+  { name: '10 LB', value: Plate10LB },
+  { name: '5 LB', value: Plate5LB },
 ];
 
 const Home: NextPage = (): JSX.Element => {
 
-  const [barbellWeight, setBarbellWeight] = useLocalStorage<number>('barbell_weight', Barbell45);
+  const [availablePlates, setAvailablePlates] = useLocalStorage<number[]>(
+    KEY_AVAILABLE_PLATES,
+    [Plate45LB, Plate35LB, Plate25LB, Plate15LB, Plate10LB, Plate5LB]
+  );
+
+  const [barbellWeight, setBarbellWeight] = useLocalStorage<number>(
+    KEY_BARBELL_WEIGHT,
+    Barbell45LB
+  );
 
   const [roundedWeight, setRoundedWeight] = useState<number>();
 
@@ -40,8 +66,8 @@ const Home: NextPage = (): JSX.Element => {
       setRoundedWeight(rWeight);
       setPlatesConfig(pConfig);
     }
-  }, [barbellWeight, weight]);
-  
+  }, [barbellWeight, availablePlates, weight]);
+
   const weightInputHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
     const enteredWeight: number = Number(event.target.value);
     setWeight(enteredWeight);
@@ -52,12 +78,17 @@ const Home: NextPage = (): JSX.Element => {
     setBarbellWeight(checkedBarbelWeight);
   };
 
-  const hasPlateConfig = (): boolean => {
-    return platesConfig.length > 0;
-  };
-  
-  const classNames = (...classes: string[]): string => {
-    return classes.filter(Boolean).join(' ');
+  const platesCheckHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+    let updatedList: number[] = [...availablePlates];
+    let value: number = Number(event.target.value);
+    
+    if (event.target.checked) {
+      updatedList = [...updatedList, value];
+    } else {
+      updatedList.splice(availablePlates.indexOf(value), 1);
+    }
+
+    setAvailablePlates(updatedList.sort((a, b) => { return  b - a; }));
   };
 
   return (
@@ -132,35 +163,35 @@ const Home: NextPage = (): JSX.Element => {
                 <section aria-labelledby="section-1-title">
                   <div className="rounded-lg bg-white overflow-hidden shadow min-h-full">
                     <div className="p-6">
-                      { hasPlateConfig()
+                      {platesConfig.length > 0
                         ?
-                          <>
-                            <h3 className="text-lg leading-6 font-medium text-gray-500">~{roundedWeight} LB</h3>
-                            <ul role="list" className="mt-3 grid grid-cols-1 gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-6">
-                              {platesConfig.map((plates, i) => (
-                                <li key={plates[0]} className="col-span-1 flex shadow-sm rounded-md">
-                                  <div
-                                    className={classNames(
-                                      `barbell-${plates[0]}`,
-                                      'flex-shrink-0 flex items-center justify-center w-12 text-white text-sm rounded-l-md font-bold'
-                                    )}
-                                  >
-                                    {`${plates[0]} LB`}
+                        <>
+                          <h3 className="text-lg leading-6 font-medium text-gray-500">~{roundedWeight} LB</h3>
+                          <ul role="list" className="mt-3 grid grid-cols-1 gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-6">
+                            {platesConfig.map((plates, index) => (
+                              <li key={index} className="col-span-1 flex shadow-sm rounded-md">
+                                <div
+                                  className={classNames(
+                                    `barbell-${plates[0]}`,
+                                    'flex-shrink-0 flex items-center justify-center w-12 text-white text-sm rounded-l-md font-bold'
+                                  )}
+                                >
+                                  {plates[0]} LB
+                                </div>
+                                <div className="flex-1 flex items-center justify-between border-t border-r border-b border-gray-200 bg-white rounded-r-md truncate">
+                                  <div className="flex-1 px-4 py-2 text-sm truncate">
+                                    <p className="text-gray-500 font-bold">{`${plates[1]}x`}</p>
                                   </div>
-                                  <div className="flex-1 flex items-center justify-between border-t border-r border-b border-gray-200 bg-white rounded-r-md truncate">
-                                    <div className="flex-1 px-4 py-2 text-sm truncate">
-                                      <p className="text-gray-500 font-bold">{`${plates[1]}x`}</p>
-                                    </div>
-                                  </div>
-                                </li>
-                              ))}
-                            </ul>
-                          </>
+                                </div>
+                              </li>
+                            ))}
+                          </ul>
+                        </>
                         :
-                          <>
-                            <h3 className="mt-2 text-sm font-medium text-gray-900">No weight</h3>
-                            <p className="mt-1 text-sm text-gray-500">Get started by selection a weight.</p>
-                          </>
+                        <>
+                          <h3 className="mt-2 text-sm font-medium text-gray-900">No weight</h3>
+                          <p className="mt-1 text-sm text-gray-500">Get started by selection a weight.</p>
+                        </>
                       }
                     </div>
                   </div>
@@ -171,27 +202,56 @@ const Home: NextPage = (): JSX.Element => {
               <div className="bg-grid grid-cols-1 gap-4">
                 <section aria-labelledby="section-2-title">
                   <div className="rounded-lg bg-white overflow-hidden shadow">
-                    <div className="p-6">
-                      <label className="text-base font-medium text-gray-900">Barbell Weight</label>
-                      <fieldset className="mt-4">
-                        <div className="space-y-4 sm:flex sm:items-center sm:space-y-0 sm:space-x-10">
-                          {barbellWeights.map((bWeight) => (
-                            <div key={bWeight.id} className="flex items-center">
-                              <input id={bWeight.id}
-                                name="barbell-weight"
-                                type="radio"
-                                value={bWeight.value}
-                                defaultChecked={bWeight.value == barbellWeight }
-                                onChange={barbellWeightInputHandler}
-                                className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
-                              />
-                              <label htmlFor={bWeight.id} className="ml-3 block text-sm font-medium text-gray-700">
-                                {bWeight.title}
-                              </label>
+                    <div className="px-6 pb-6">
+                      <div className="pt-6">
+                        <label className="text-base font-medium text-gray-900">Barbell Weight</label>
+                        <fieldset className="mt-4">
+                          <div className="space-y-4 sm:flex sm:items-center sm:space-y-0 sm:space-x-10">
+                            {barbellsList.map((barbell, index) => (
+                              <div key={index} className="flex items-center">
+                                <input
+                                  id={`barbell-${barbell.value}`}
+                                  name={`barbell-${barbell.value}`}
+                                  type="radio"
+                                  value={barbell.value}
+                                  checked={barbellWeight === barbell.value}
+                                  onChange={barbellWeightInputHandler}
+                                  className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
+                                />
+                                <label htmlFor={`barbell-${barbell.value}`} className="ml-3 block text-sm font-medium text-gray-700">
+                                  {barbell.name}
+                                </label>
+                              </div>
+                            ))}
+                          </div>
+                        </fieldset>
+                      </div>
+
+                      <div className="pt-6">
+                        <label className="text-base font-medium text-gray-900">Available Plates</label>
+                        <fieldset className="flex flex-wrap mt-4">
+                          {platesList.map((plate, index) => (
+                            <div key={index} className="relative flex items-start p-2">
+                              <div className="flex items-center h-5">
+                                <input
+                                  id={`plate-${plate.value}`}
+                                  name={`plate-${plate.value}`}
+                                  value={plate.value}
+                                  type="checkbox"
+                                  defaultChecked={availablePlates.includes(plate.value)}
+                                  onChange={platesCheckHandler}
+                                  className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                                />
+                              </div>
+                              <div className="ml-3 text-sm">
+                                <label htmlFor={`plate-${plate.value}`} className="font-medium text-gray-700">
+                                  {plate.name}
+                                </label>
+                              </div>
                             </div>
                           ))}
-                        </div>
-                      </fieldset>
+                        </fieldset>
+                      </div>
                     </div>
                   </div>
                 </section>
