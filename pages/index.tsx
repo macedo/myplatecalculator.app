@@ -118,7 +118,7 @@ const Home: NextPage = (): JSX.Element => {
       </Head>
 
       <div className="min-h-full">
-        <header className="pb-24 bg-indigo-600">
+        <header className="pb-24 bg-gray-800">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:max-w-7xl lg:px-8">
             <div className="relative py-5 flex items-center justify-center lg:justify-between">
               {/* Logo */}
@@ -180,60 +180,62 @@ const Home: NextPage = (): JSX.Element => {
             <div className="grid grid-cols-1 gap-4 items-start lg:grid-cols-3 lg:gap-8">
               {/* Left column */}
               <div className="grid grid-cols-1 gap-4 lg:col-span-2">
-                <section aria-labelledby="section-1-title">
-                  <div className="flex flex-col rounded-lg bg-white overflow-hidden shadow min-h-full">
-                    <Switch.Group as="div" className="flex items-center self-end p-6">
-                        <Switch
-                          checked={onEachSideEnabled}
-                          onChange={setOnEachSideEnable}
-                          className={classNames(
-                            onEachSideEnabled ? 'bg-indigo-600' : 'bg-gray-200',
-                            'relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
-                          )}
-                        >
-                          <span
+                <section>
+                  <div className="rounded-lg bg-white overflow-hidden shadow min-h-full pb-3">
+                    <div className="flex w-full p-6">
+                      <div className="flex">
+                        <h3 className="text-3xl py-3 leading-6 font-light text-gray-900">{weight ? `~ ${weight} LB` : '' }</h3>
+                      </div>
+                      <Switch.Group as="div" className="flex justify-end flex-1 py-3">
+                          <Switch
+                            checked={onEachSideEnabled}
+                            onChange={setOnEachSideEnable}
                             className={classNames(
-                              onEachSideEnabled ? 'translate-x-5' : 'translate-x-0',
-                              'pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200'
+                              onEachSideEnabled ? 'bg-gray-800' : 'bg-gray-200',
+                              'relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500'
                             )}
-                          />
-                        </Switch>
-                        <Switch.Label as="span" className="ml-3">
-                          <span className="text-sm font-medium text-gray-900">On Each Side</span>
-                        </Switch.Label>
-                    </Switch.Group>
+                          >
+                            <span
+                              className={classNames(
+                                onEachSideEnabled ? 'translate-x-5' : 'translate-x-0',
+                                'pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200'
+                              )}
+                            />
+                          </Switch>
+                          <Switch.Label as="span" className="ml-3">
+                            <span className="text-sm font-medium text-gray-900">On Each Side</span>
+                          </Switch.Label>
+                      </Switch.Group>
+                    </div>
                     <div className="p-6">
                       {platesConfig.length > 0
                         ?
-                        <>
-                          <h3 className="text-lg leading-6 font-medium text-gray-500">~{weight} LB</h3>
-                          <ul role="list" className="mt-3 grid grid-cols-1 gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-6">
-                            {platesConfig.map((plate, index) => (
-                              <li key={index} className="col-span-1 flex shadow-sm rounded-md">
-                                <div
-                                  className={classNames(
-                                    `barbell-${plate[0]}`.replace(".", "_"),
-                                    'flex-shrink-0 flex items-center justify-center w-12 text-white text-sm rounded-l-md font-bold'
-                                  )}
-                                >
-                                  {plate[0]} LB
+                        <ul role="list" className="mt-3 grid grid-cols-1 gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-6">
+                          {platesConfig.map((plate, index) => (
+                            <li key={index} className="col-span-1 flex shadow-sm rounded-md">
+                              <div
+                                className={classNames(
+                                  `barbell-${plate[0]}`.replace(".", "_"),
+                                  'flex-shrink-0 flex items-center justify-center w-12 text-white text-sm rounded-l-md font-bold'
+                                )}
+                              >
+                                {plate[0]} LB
+                              </div>
+                              <div className="flex-1 flex items-center justify-between border-t border-r border-b border-gray-200 bg-white rounded-r-md truncate">
+                                <div className="flex-1 px-4 py-2 text-sm truncate">
+                                  <p className="text-gray-500 font-bold">
+                                    {onEachSideEnabled ? plate[1] / 2 : plate[1]} x
+                                  </p>
                                 </div>
-                                <div className="flex-1 flex items-center justify-between border-t border-r border-b border-gray-200 bg-white rounded-r-md truncate">
-                                  <div className="flex-1 px-4 py-2 text-sm truncate">
-                                    <p className="text-gray-500 font-bold">
-                                      {onEachSideEnabled ? plate[1] / 2 : plate[1]} x
-                                    </p>
-                                  </div>
-                                </div>
-                              </li>
-                            ))}
-                          </ul>
-                        </>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
                         :
-                        <>
+                        <div className="text-center">
                           <h3 className="mt-2 text-sm font-medium text-gray-900">No weight</h3>
                           <p className="mt-1 text-sm text-gray-500">Get started by selection a weight.</p>
-                        </>
+                        </div>
                       }
                     </div>
                   </div>
@@ -242,7 +244,7 @@ const Home: NextPage = (): JSX.Element => {
 
               {/* Right column */}
               <div className="bg-grid grid-cols-1 gap-4">
-                <section aria-labelledby="section-2-title">
+                <section>
                   <div className="rounded-lg bg-white overflow-hidden shadow">
                     <div className="px-6 pb-6">
                       <div className="pt-6">
@@ -258,7 +260,7 @@ const Home: NextPage = (): JSX.Element => {
                                   value={barbell.value}
                                   checked={barbellWeight === barbell.value}
                                   onChange={barbellWeightInputHandler}
-                                  className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
+                                  className="focus:ring-gray-500 h-4 w-4 text-gray-800 border-gray-300"
                                 />
                                 <label htmlFor={`barbell-${barbell.value}`} className="ml-3 block text-sm font-medium text-gray-700">
                                   {barbell.name}
@@ -282,7 +284,7 @@ const Home: NextPage = (): JSX.Element => {
                                   type="checkbox"
                                   checked={availablePlates.includes(plate.value)}
                                   onChange={platesCheckHandler}
-                                  className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                                  className="focus:ring-gray-500 h-4 w-4 text-gray-800 border-gray-300 rounded"
                                 />
                               </div>
                               <div className="ml-3 text-sm">
@@ -303,7 +305,7 @@ const Home: NextPage = (): JSX.Element => {
         </main>
         <footer>
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 lg:max-w-7xl">
-            <div className="border-t border-gray-200 py-8 text-sm text-gray-500 text-center sm:text-left">
+            <div className="border-t border-gray-200 py-8 text-sm text-gray-500 text-center">
               <span className="block sm:inline">&copy; Rafael Macedo.</span>{' '}
               <span className="block sm:inline">All rights reserved.</span>
             </div>
