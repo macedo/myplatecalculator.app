@@ -1,15 +1,17 @@
 import type { NextPage } from 'next';
 import React, { useEffect, useState } from 'react';
+import { Switch } from '@headlessui/react';
 import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
 
-import useLocalStorage from '../src/useLocalStorage';
 import { classNames, roundUp } from '../src/utils';
 import { calculatePlates } from '../src/calculatePlates';
+import useLocalStorageState from 'use-local-storage-state';
 
 const KEY_AVAILABLE_PLATES = "available_plates";
 const KEY_BARBELL_WEIGHT = "barbell_weight";
+const KEY_ON_EACH_SIDE_ENABLED = "on_each_side_enabled";
 
 const Barbell35LB: number = 35;
 const Barbell45LB: number = 45;
@@ -42,14 +44,28 @@ const platesList = [
 
 const Home: NextPage = (): JSX.Element => {
 
-  const [availablePlates, setAvailablePlates] = useLocalStorage<number[]>(
-    KEY_AVAILABLE_PLATES,
-    [Plate55LB, Plate45LB, Plate35LB, Plate25LB, Plate15LB, Plate10LB, Plate5LB, Plate2_5LB]
+  const [onEachSideEnabled, setOnEachSideEnable] = useLocalStorageState<boolean>(
+    KEY_ON_EACH_SIDE_ENABLED,
+    {
+      defaultValue: false,
+    }
   );
 
-  const [barbellWeight, setBarbellWeight] = useLocalStorage<number>(
+  const [availablePlates, setAvailablePlates] = useLocalStorageState<number[]>(
+    KEY_AVAILABLE_PLATES,
+    {
+      defaultValue: [
+        Plate55LB, Plate45LB, Plate35LB, Plate25LB,
+        Plate15LB, Plate10LB, Plate5LB, Plate2_5LB
+      ],
+    }
+  );
+
+  const [barbellWeight, setBarbellWeight] = useLocalStorageState<number>(
     KEY_BARBELL_WEIGHT,
-    Barbell45LB
+    {
+      defaultValue: Barbell45LB
+    }
   );
 
   const [platesConfig, setPlatesConfig] = useState<number[][]>([]);
@@ -64,7 +80,12 @@ const Home: NextPage = (): JSX.Element => {
 
       setPlatesConfig(pConfig);
     }
-  }, [barbellWeight, availablePlates, weight]);
+  }, [
+    availablePlates,
+    barbellWeight,
+    onEachSideEnabled,
+    weight
+  ]);
 
   const weightInputHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
     const minorPlate: number = availablePlates[availablePlates.length - 1];
@@ -160,26 +181,48 @@ const Home: NextPage = (): JSX.Element => {
               {/* Left column */}
               <div className="grid grid-cols-1 gap-4 lg:col-span-2">
                 <section aria-labelledby="section-1-title">
-                  <div className="rounded-lg bg-white overflow-hidden shadow min-h-full">
+                  <div className="flex flex-col rounded-lg bg-white overflow-hidden shadow min-h-full">
+                    <Switch.Group as="div" className="flex items-center self-end p-6">
+                        <Switch
+                          checked={onEachSideEnabled}
+                          onChange={setOnEachSideEnable}
+                          className={classNames(
+                            onEachSideEnabled ? 'bg-indigo-600' : 'bg-gray-200',
+                            'relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
+                          )}
+                        >
+                          <span
+                            className={classNames(
+                              onEachSideEnabled ? 'translate-x-5' : 'translate-x-0',
+                              'pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200'
+                            )}
+                          />
+                        </Switch>
+                        <Switch.Label as="span" className="ml-3">
+                          <span className="text-sm font-medium text-gray-900">On Each Side</span>
+                        </Switch.Label>
+                    </Switch.Group>
                     <div className="p-6">
                       {platesConfig.length > 0
                         ?
                         <>
                           <h3 className="text-lg leading-6 font-medium text-gray-500">~{weight} LB</h3>
                           <ul role="list" className="mt-3 grid grid-cols-1 gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-6">
-                            {platesConfig.map((plates, index) => (
+                            {platesConfig.map((plate, index) => (
                               <li key={index} className="col-span-1 flex shadow-sm rounded-md">
                                 <div
                                   className={classNames(
-                                    `barbell-${plates[0]}`.replace(".", "_"),
+                                    `barbell-${plate[0]}`.replace(".", "_"),
                                     'flex-shrink-0 flex items-center justify-center w-12 text-white text-sm rounded-l-md font-bold'
                                   )}
                                 >
-                                  {plates[0]} LB
+                                  {plate[0]} LB
                                 </div>
                                 <div className="flex-1 flex items-center justify-between border-t border-r border-b border-gray-200 bg-white rounded-r-md truncate">
                                   <div className="flex-1 px-4 py-2 text-sm truncate">
-                                    <p className="text-gray-500 font-bold">{`${plates[1]}x`}</p>
+                                    <p className="text-gray-500 font-bold">
+                                      {onEachSideEnabled ? plate[1] / 2 : plate[1]} x
+                                    </p>
                                   </div>
                                 </div>
                               </li>
@@ -237,7 +280,7 @@ const Home: NextPage = (): JSX.Element => {
                                   name={`plate-${plate.value}`}
                                   value={plate.value}
                                   type="checkbox"
-                                  defaultChecked={availablePlates.includes(plate.value)}
+                                  checked={availablePlates.includes(plate.value)}
                                   onChange={platesCheckHandler}
                                   className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
                                 />
