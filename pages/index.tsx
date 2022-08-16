@@ -211,25 +211,29 @@ const Home: NextPage = (): JSX.Element => {
                       {platesConfig.length > 0
                         ?
                         <ul role="list" className="mt-3 grid grid-cols-1 gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-6">
-                          {platesConfig.map((plate, index) => (
-                            <li key={index} className="col-span-1 flex shadow-sm rounded-md">
-                              <div
-                                className={classNames(
-                                  `barbell-${plate[0]}`.replace(".", "_"),
-                                  'flex-shrink-0 flex items-center justify-center w-12 text-white text-sm rounded-l-md font-bold'
-                                )}
-                              >
-                                {plate[0]} LB
-                              </div>
-                              <div className="flex-1 flex items-center justify-between border-t border-r border-b border-gray-200 bg-white rounded-r-md truncate">
-                                <div className="flex-1 px-4 py-2 text-sm truncate">
-                                  <p className="text-gray-500 font-bold">
-                                    {onEachSideEnabled ? plate[1] / 2 : plate[1]} x
-                                  </p>
-                                </div>
-                              </div>
-                            </li>
-                          ))}
+                          {platesConfig.map((plate, index) => {
+                            if (plate[1] > 0) {
+                              return (
+                                <li key={index} className="col-span-1 flex shadow-sm rounded-md">
+                                  <div
+                                    className={classNames(
+                                      `barbell-${plate[0]}`.replace(".", "_"),
+                                      'flex-shrink-0 flex items-center justify-center w-12 text-white text-sm rounded-l-md font-bold'
+                                    )}
+                                  >
+                                    {plate[0]} LB
+                                  </div>
+                                  <div className="flex-1 flex items-center justify-between border-t border-r border-b border-gray-200 bg-white rounded-r-md truncate">
+                                    <div className="flex-1 px-4 py-2 text-sm truncate">
+                                      <p className="text-gray-500 font-bold">
+                                        {onEachSideEnabled ? plate[1] / 2 : plate[1]} x
+                                      </p>
+                                    </div>
+                                  </div>
+                                </li> 
+                              );
+                            }
+                          })}
                         </ul>
                         :
                         <div className="text-center">
