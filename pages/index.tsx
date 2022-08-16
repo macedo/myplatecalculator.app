@@ -210,7 +210,7 @@ const Home: NextPage = (): JSX.Element => {
                     <div className="p-6">
                       {platesConfig.length > 0
                         ?
-                        <ul role="list" className="mt-3 grid grid-cols-1 gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-6">
+                        <ul role="list" className="mt-3 grid grid-cols-2 gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-6">
                           {platesConfig.map((plate, index) => {
                             if (plate[1] > 0) {
                               return (
