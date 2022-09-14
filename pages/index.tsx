@@ -6,7 +6,6 @@ import Link from 'next/link';
 
 import useLocalStorageState from 'use-local-storage-state';
 import { classNames } from '../src/utils/helpers/styles.helpers';
-import { roundUp } from '../src/utils/helpers/math.helpers';
 import calculatePlates from '../src/calculatePlates';
 
 import { Barbell35LB, Barbell45LB } from '../src/utils/constants/barbells';
@@ -74,10 +73,26 @@ function Home() {
     weight,
   ]);
 
+  const [totalWeight, setTotalWeight] = useState<number>();
+
+  useEffect(() => {
+    if (weight && platesConfig.length > 0) {
+      const total = 0;
+      setTotalWeight(barbellWeight + platesConfig.reduce(
+        (t, pConfig) => t + (pConfig[0] * pConfig[1]),
+        total,
+      ));
+    } else {
+      setTotalWeight(undefined);
+    }
+  }, [
+    barbellWeight,
+    platesConfig,
+  ]);
+
   const weightInputHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const minorPlate: number = availablePlates[availablePlates.length - 1];
     const enteredWeight: number = Number(event.target.value);
-    setWeight(roundUp(enteredWeight, minorPlate * 2));
+    setWeight(enteredWeight);
   };
 
   const barbellWeightInputHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -175,7 +190,7 @@ function Home() {
                   <div className="rounded-lg bg-white overflow-hidden shadow min-h-full pb-3">
                     <div className="flex w-full p-6">
                       <div className="flex">
-                        <h3 className="text-3xl py-3 leading-6 font-light text-gray-900">{weight ? `~ ${weight} LB` : ''}</h3>
+                        <h3 className="text-3xl py-3 leading-6 font-light text-gray-900">{totalWeight ? `~ ${totalWeight} LB` : ''}</h3>
                       </div>
                       <Switch.Group as="div" className="flex justify-end flex-1 py-3">
                         <Switch
