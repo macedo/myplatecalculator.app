@@ -126,9 +126,7 @@ function Home() {
               {/* Logo */}
               <div className="absolute left-0 flex-shrink-0 lg:static">
                 <Link href="/">
-                  <a>
-                    <Image className="h-8 w-auto" width={32} height={32} src="https://tailwindui.com/img/logos/workflow-mark-indigo-300.svg" alt="Workflow" />
-                  </a>
+                  <Image className="h-8 w-auto" width={32} height={32} src="https://tailwindui.com/img/logos/workflow-mark-indigo-300.svg" alt="Workflow" />
                 </Link>
               </div>
 
